@@ -55,10 +55,10 @@ if ARUCO_DICT.get(args["type"], None) is None:
 # load the ArUCo dictionary, grab the ArUCo parameters, and detect
 # the markers
 print("[INFO] detecting '{}' tags...".format(args["type"]))
-arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
-arucoParams = cv2.aruco.DetectorParameters_create()
-(corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict,
-	parameters=arucoParams)
+arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[args["type"]])
+arucoParams = cv2.aruco.DetectorParameters()
+arucoDetector = cv2.aruco.ArucoDetector(arucoDict, arucoParams)
+(corners, ids, rejected) = arucoDetector.detectMarkers(image)
 
 # verify *at least* one ArUco marker was detected
 if len(corners) > 0:
@@ -96,6 +96,6 @@ if len(corners) > 0:
 			0.5, (0, 255, 0), 2)
 		print("[INFO] ArUco marker ID: {}".format(markerID))
 
-		# show the output image
-		cv2.imshow("Image", image)
-		cv2.waitKey(0)
+	# show the output image
+	cv2.imshow("Image", image)
+	cv2.waitKey(0)

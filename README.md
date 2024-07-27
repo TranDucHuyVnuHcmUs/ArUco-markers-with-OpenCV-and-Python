@@ -24,6 +24,24 @@ coding (unlike AprilTags where no such generators are easily found).
 1. And from an implementation perspective, ArUco marker detections tend to be 
 **more accurate**, even when using the default parameters.
 
+## Usage
+
+### Generate Aruco markers
+
+> python opencv_generate_aruco.py --id 24 --type DICT_5X5_100 --output tags/DICT_5X5_100_id24.png
+
+### Guess 
+
+> python guess_aruco_type.py --image images/example_01.png
+
+### Detect the markers from the images or video stream
+
+> python detect_aruco_image.py --image images/example_01.png --type DICT_5X5_100
+
+> python detect_aruco_image.py --image images/example_02.png --type DICT_ARUCO_ORIGINAL
+
+> python detect_aruco_video.py
+
 ## References
 1. https://www.pyimagesearch.com/2020/12/14/generating-aruco-markers-with-opencv-and-python/
 1. https://www.pyimagesearch.com/2020/12/21/detecting-aruco-markers-with-opencv-and-python/

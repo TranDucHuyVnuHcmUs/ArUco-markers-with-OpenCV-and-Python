@@ -5,11 +5,12 @@ import numpy as np
 import argparse
 import cv2
 import sys
+import os
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-o", "--output", required=True,
-	help="path to output image containing ArUCo tag")
+	help="path to the parent folder containing output file(s)")
 ap.add_argument("-i", "--id", type=int, required=True,
 	help="ID of ArUCo tag to generate")
 ap.add_argument("-t", "--type", type=str,
@@ -50,17 +51,20 @@ if ARUCO_DICT.get(args["type"], None) is None:
 	sys.exit(0)
 
 # load the ArUCo dictionary
-arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
+arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[args["type"]])
 
 # allocate memory for the output ArUCo tag and then draw the ArUCo
 # tag on the output image
 print("[INFO] generating ArUCo tag type '{}' with ID '{}'".format(
 	args["type"], args["id"]))
 tag = np.zeros((300, 300, 1), dtype="uint8")
-cv2.aruco.drawMarker(arucoDict, args["id"], 300, tag, 1)
+cv2.aruco.generateImageMarker(arucoDict, args["id"], 300, tag, 1)
 
 # write the generated ArUCo tag to disk and then display it to our
 # screen
-cv2.imwrite(args["output"], tag)
+
+if not os.path.exists(args["output"]):
+	os.mkdir(args["output"])
+cv2.imwrite(os.path.join(args["output"], args["type"] + "_id" + (str)(args["id"]) + ".png" ), tag)
 cv2.imshow("ArUCo Tag", tag)
 cv2.waitKey(0)

@@ -13,6 +13,9 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-t", "--type", type=str,
 	default="DICT_ARUCO_ORIGINAL",
 	help="type of ArUCo tag to detect")
+ap.add_argument("-c", "--camera",
+	default=0,
+	help="Camera index")
 args = vars(ap.parse_args())
 
 # define names of each possible ArUco tag OpenCV supports
@@ -49,12 +52,13 @@ if ARUCO_DICT.get(args["type"], None) is None:
 
 # load the ArUCo dictionary and grab the ArUCo parameters
 print("[INFO] detecting '{}' tags...".format(args["type"]))
-arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
-arucoParams = cv2.aruco.DetectorParameters_create()
+arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[args["type"]])
+arucoParams = cv2.aruco.DetectorParameters()
+arucoDetector = cv2.aruco.ArucoDetector(arucoDict, arucoParams)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
+vs = VideoStream(src=args["camera"]).start()
 time.sleep(2.0)
 
 # loop over the frames from the video stream
@@ -65,8 +69,7 @@ while True:
 	frame = imutils.resize(frame, width=1000)
 
 	# detect ArUco markers in the input frame
-	(corners, ids, rejected) = cv2.aruco.detectMarkers(frame,
-		arucoDict, parameters=arucoParams)
+	(corners, ids, rejected) = arucoDetector.detectMarkers(frame)
 
 	# verify *at least* one ArUco marker was detected
 	if len(corners) > 0:

@@ -45,10 +45,10 @@ image = imutils.resize(image, width=600)
 for (arucoName, arucoDict) in ARUCO_DICT.items():
 	# load the ArUCo dictionary, grab the ArUCo parameters, and
 	# attempt to detect the markers for the current dictionary
-	arucoDict = cv2.aruco.Dictionary_get(arucoDict)
-	arucoParams = cv2.aruco.DetectorParameters_create()
-	(corners, ids, rejected) = cv2.aruco.detectMarkers(
-		image, arucoDict, parameters=arucoParams)
+	arucoDict = cv2.aruco.getPredefinedDictionary(arucoDict)
+	arucoParams = cv2.aruco.DetectorParameters()
+	arucoDetector = cv2.aruco.ArucoDetector(arucoDict, arucoParams)
+	(corners, ids, rejected) = arucoDetector.detectMarkers(image)
 
 	# if at least one ArUco marker was detected display the ArUco
 	# name to our terminal
