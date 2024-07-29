@@ -2,7 +2,10 @@ import cv2
 import argparse
 import sys
 import json
-import pickle
+import numpy as np
+import os
+
+from tqdm import tqdm
 
 import pykinect_azure as pykinect
 from pykinect_azure import K4A_CALIBRATION_TYPE_COLOR, K4A_CALIBRATION_TYPE_DEPTH, k4a_float2_t
@@ -16,9 +19,6 @@ ap.add_argument("-cf", "--config", type=str, required=True,
 ap.add_argument("-cam", "--camera",
 	default=0,
 	help="Camera index")
-ap.add_argument("-p", "--params", type=str, 
-    default="charuco_board/calib_params.p",
-    help="Calibration result with ChAruco board")
 args = vars(ap.parse_args())
 
 
@@ -37,44 +37,67 @@ if utils.ARUCO_DICT.get(config["dictionary"], None) is None:
 print("[INFO] detecting '{}' tags...".format(config["dictionary"]))
 aruco_dict = cv2.aruco.getPredefinedDictionary(utils.ARUCO_DICT[config["dictionary"]])
 
-with open(args["params"], "rb") as f:
-    unpickler= pickle.Unpickler(f)
-    params = unpickler.load()
-print(params)
-
-camera_matrix = params["camera_matrix"]
-dist_coeffs = params["dist_coeffs"]
-
-
 charuco_board = cv2.aruco.CharucoBoard( (config["x"], config["y"]), config["square_length"], config["marker_length"], aruco_dict)
-
-charuco_params = cv2.aruco.CharucoParameters()
-charuco_params.tryRefineMarkers = False
-charuco_params.cameraMatrix = camera_matrix
-charuco_params.distCoeffs = dist_coeffs
-charuco_detector = cv2.aruco.CharucoDetector(charuco_board,charuco_params  ,cv2.aruco.DetectorParameters())
+charuco_detector = cv2.aruco.CharucoDetector(charuco_board)
 print("Charuco detector initialized!")
 
 
 camera = cv2.VideoCapture(0)
 
-while True:
+all_image_points = []
+all_object_points = []
+image_size = None           # for now
+
+frame_count = 0
+
+for i in tqdm(range(25)):
+    frame_count += 1
     ret, frame = camera.read()
     (charuco_corners, charuco_ids, marker_corners, marker_ids) = charuco_detector.detectBoard(frame)
 	
     annotated_image = frame
-    print(annotated_image.shape)
 
     if ( (charuco_corners is not None) and (len(charuco_corners) > 0) ):
         annotated_image = cv2.aruco.drawDetectedCornersCharuco(annotated_image, charuco_corners, charuco_ids, (255, 0, 0))
         (obj_points, img_points) = charuco_board.matchImagePoints(charuco_corners, charuco_ids)
+        
+        if (obj_points is None or obj_points.sum() == 0) or (img_points is None or img_points.sum() == 0): continue 
+        all_image_points.append(img_points)
+        all_object_points.append(obj_points)
+        image_size = (frame.shape[0], frame.shape[1])
 
-        if (camera_matrix.sum() != 0 and dist_coeffs.sum() != 0 and charuco_ids.shape[0] >= 4):
-            retval, rvec, tvec = cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coeffs)
-            annotated_image = cv2.drawFrameAxes(annotated_image, camera_matrix, dist_coeffs, rvec, tvec, 100)
+        # assume fixed ratio
+        # camera_matrix = np.eye(3, 3, dtype=np.float64)
+        # camera_matrix[0, 0] = (frame.shape[0] / frame.shape[1])
+        camera_matrix = np.zeros((3,3))
+        dist_coeffs = np.zeros(())
+
+        cv2.imshow("Camera calibration using ChAruco board", annotated_image)
+        
+
+(retval, camera_matrix, dist_coeffs, rvecs, tvecs) = cv2.calibrateCamera(all_object_points, all_image_points, image_size, camera_matrix, dist_coeffs)
+
+
+output_folder_path = "charuco_board/"
+output_filepath = os.path.join(output_folder_path, "calib_params.p")
+
+calib_results = {
+    "camera_matrix": camera_matrix,
+    "dist_coeffs": dist_coeffs,
+    "rvecs": rvecs,
+    "tvecs": tvecs
+}
+print(calib_results)
+import pickle
+pickler = pickle.Pickler(open(output_filepath, "wb"))
+pickler.dump(calib_results)
+
+# with open(output_filepath,"wb") as f:
+#     f.write(json.dumps(calib_results))
+
+
+    # f.write
+
     # Overlay body segmentation on depth image
-    cv2.imshow('Transformed Color Depth Image With ChAruco Board Annotation',annotated_image)
+    # cv2.imshow('Transformed Color Depth Image With ChAruco Board Annotation',annotated_image)
     
-    # Press q key to stop
-    if cv2.waitKey(1) == ord('q'): 
-        break

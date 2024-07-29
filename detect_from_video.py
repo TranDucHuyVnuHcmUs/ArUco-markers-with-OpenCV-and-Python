@@ -11,7 +11,7 @@ import utils
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-t", "--type", type=str,
+ap.add_argument("-d", "--dict", type=str,
 	default="DICT_ARUCO_ORIGINAL",
 	help="type of ArUCo tag to detect")
 ap.add_argument("-c", "--camera",

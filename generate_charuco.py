@@ -4,6 +4,7 @@ import argparse
 import sys
 import numpy as np
 import os
+import json
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dict", type=str,
@@ -32,36 +33,40 @@ arucoDict = cv2.aruco.getPredefinedDictionary(utils.ARUCO_DICT[args["dict"]])
 arucoParams = cv2.aruco.DetectorParameters()
 
 # define charuco board attributes
-marker_count = (args["x"], args["y"])
-print(marker_count)
-square_length = 100
-marker_length = 60           # for some reasons, I have to use this, if 0.2 then it cause error?
+config = {
+	"dictionary": args["dict"],
+	"x": args["x"], 
+	"y": args["y"],
+	"square_length": 100,
+	"marker_length": 60,          # for some reasons, I have to use this, if 0.2 then it cause error?
+}
+print(config)
 
-board = cv2.aruco.CharucoBoard( marker_count, square_length, marker_length, arucoDict)
-# board_size = ( (int)(marker_count[0] * square_length) + 1, (int)(marker_count[1] * square_length) + 1 )
-# board_image = np.zeros((board_size[0], board_size[1], 1), dtype="uint8")
 board_size = (1280, 720)
 
+board = cv2.aruco.CharucoBoard( (config["x"], config["y"]), config["square_length"], config["marker_length"], arucoDict)
 board_image = np.zeros( [board_size[0], board_size[1], 1], dtype=np.uint8)
-
-print(board_image.shape)
-
-# generate chAruco
-# board.generateImage(board_size, board_image)
 board_image = board.generateImage(board_size, board_image)
 
 output_folder_path = args["output"]
 if (not os.path.exists(output_folder_path)):
 	os.mkdir(output_folder_path)
+
+output_name = args["dict"] + "_x=" + (str)(config["x"]) + "_y=" + (str)(config["y"])  + "_s=" + (str)(config["square_length"]) + "_m=" + (str)(config["marker_length"])
+
+output_file_path = os.path.join(args["output"], output_name + ".jpg")
 	
 cv2.imwrite(
-	os.path.join(args["output"], 
-        args["dict"] 
-        + "_x" + (str)(marker_count[0]) + "y" + (str)(marker_count[1]) 
-        + "_s" + (str)(square_length) + "_m" + (str)(marker_length))
-		+ ".jpg",
+		output_file_path,
 		board_image
     )
+
+with open(os.path.join(output_folder_path, output_name + ".json"), "w") as f:
+	f.write(json.dumps( 
+		config, 
+		indent = 4
+	))
+
 cv2.imshow("Charuco board", board_image)
 cv2.waitKey(0)
 

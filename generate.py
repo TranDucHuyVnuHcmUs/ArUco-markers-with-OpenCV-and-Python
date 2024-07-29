@@ -14,7 +14,7 @@ ap.add_argument("-o", "--output", required=True,
 	help="path to the parent folder containing output file(s)")
 ap.add_argument("-i", "--id", type=int, required=True,
 	help="ID of ArUCo tag to generate")
-ap.add_argument("-t", "--type", type=str,
+ap.add_argument("-d", "--dict", type=str,
 	default="DICT_ARUCO_ORIGINAL",
 	help="type of ArUCo tag to generate")
 args = vars(ap.parse_args())
