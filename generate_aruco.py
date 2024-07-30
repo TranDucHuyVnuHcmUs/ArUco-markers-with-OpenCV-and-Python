@@ -10,9 +10,11 @@ import utils
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-o", "--output", required=True,
+ap.add_argument("-of", "--out_folder", type=str,
+	default="aruco/",
 	help="path to the parent folder containing output file(s)")
-ap.add_argument("-i", "--id", type=int, required=True,
+ap.add_argument("-i", "--id", type=int,
+	default=0,
 	help="ID of ArUCo tag to generate")
 ap.add_argument("-d", "--dict", type=str,
 	default="DICT_ARUCO_ORIGINAL",

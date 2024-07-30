@@ -28,11 +28,11 @@ coding (unlike AprilTags where no such generators are easily found).
 
 ### Generate Aruco markers
 
-> python opencv_generate_aruco.py --id 24 --dict DICT_5X5_100 --output tags/DICT_5X5_100_id24.png
+> python generate_aruco.py --id 24 --dict DICT_5X5_100 --out_folder tags/DICT_5X5_100_id24.png
 
 ### Guess 
 
-> python guess_aruco_type.py --image images/example_01.png
+> python guess_aruco_dict.py --image images/example_01.png
 
 ### Detect the markers from the images or video stream
 
@@ -50,13 +50,13 @@ coding (unlike AprilTags where no such generators are easily found).
 
 Currently I use Pickle to pack up the calibration results.
 
-> python charuco_calibration.py --config charuco_board\DICT_4X4_50_x=7_y=5_s=100_m=60.json
+> python calibrate_camera_charuco.py --config charuco_board\DICT_4X4_50_x=7_y=5_s=100_m=60.json --output charuco_board\camera_params.p
 
 ### Detect Charuco board, with pose estimation
 
 You must run calibration scripts first to obtain camera parameters, then include it and the board configuration into this scripts, for example:
 
-> python charuco_detection.py --config charuco_board\DICT_4X4_50_x=7_y=5_s=100_m=60.json --params charuco_board\calib_params.p
+> python detect_charuco.py --config charuco_board\DICT_4X4_50_x=7_y=5_s=100_m=60.json --params charuco_board\calib_params.p
 
 ## References
 1. https://www.pyimagesearch.com/2020/12/14/generating-aruco-markers-with-opencv-and-python/
