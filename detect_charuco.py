@@ -63,7 +63,7 @@ while True:
     (charuco_corners, charuco_ids, marker_corners, marker_ids) = charuco_detector.detectBoard(frame)
 	
     annotated_image = frame
-    print(annotated_image.shape)
+    print("Charuco corners: ", charuco_corners)
 
     if ( (charuco_corners is not None) and (len(charuco_corners) > 0) ):
         annotated_image = cv2.aruco.drawDetectedCornersCharuco(annotated_image, charuco_corners, charuco_ids, (0, 255, 0))

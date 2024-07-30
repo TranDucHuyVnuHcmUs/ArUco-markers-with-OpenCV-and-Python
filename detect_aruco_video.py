@@ -45,7 +45,6 @@ while True:
 	# to have a maximum width of 600 pixels
 	frame = vs.read()
 	# frame = imutils.resize(frame, width=1000)
-	print(frame.shape)
 
 	# detect ArUco markers in the input frame
 	(corners, ids, rejected) = arucoDetector.detectMarkers(frame)

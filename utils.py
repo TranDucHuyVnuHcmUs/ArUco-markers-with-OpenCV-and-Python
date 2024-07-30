@@ -26,7 +26,6 @@ ARUCO_DICT = {
 #	"APRILTAG_36h11": cv2.aruco.DICT_APRILTAG_36h11
 }
 
-
 def draw_bounding_box(frame, corners, id):
 	(topLeft, topRight, bottomRight, bottomLeft) = corners
 
@@ -55,3 +54,20 @@ def draw_bounding_box(frame, corners, id):
 		0.5, (0, 255, 0), 2)
 	
 	return frame
+
+
+
+def get_center(corners):
+	(topLeft, topRight, bottomRight, bottomLeft) = corners
+
+	# convert each of the (x, y)-coordinate pairs to integers
+	topRight = (int(topRight[0]), int(topRight[1]))
+	bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+	bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+	topLeft = (int(topLeft[0]), int(topLeft[1]))
+
+	cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+	cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+
+	return cX, cY
+
