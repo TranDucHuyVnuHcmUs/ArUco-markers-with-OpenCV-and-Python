@@ -4,6 +4,7 @@ import sys
 import json
 import numpy as np
 import os
+import time
 
 from tqdm import tqdm
 
@@ -16,7 +17,10 @@ import utils
 ap = argparse.ArgumentParser()
 ap.add_argument("-cf", "--config", type=str, required=True,
     help="JSON file containing information about the needed board")
-ap.add_argument("-cam", "--camera",
+ap.add_argument("-o", "--output", type=str,
+    default="charuco_board/camera_params.p",
+    help="The path of the resulting camera parameter file.")
+ap.add_argument("-cam", "--camera", type=int,
 	default=0,
 	help="Camera index")
 args = vars(ap.parse_args())
@@ -66,20 +70,16 @@ for i in tqdm(range(25)):
         all_object_points.append(obj_points)
         image_size = (frame.shape[0], frame.shape[1])
 
-        # assume fixed ratio
-        # camera_matrix = np.eye(3, 3, dtype=np.float64)
-        # camera_matrix[0, 0] = (frame.shape[0] / frame.shape[1])
-        camera_matrix = np.zeros((3,3))
-        dist_coeffs = np.zeros(())
-
         cv2.imshow("Camera calibration using ChAruco board", annotated_image)
         
-
+camera_matrix = np.zeros((3,3))
+dist_coeffs = np.zeros(())
 (retval, camera_matrix, dist_coeffs, rvecs, tvecs) = cv2.calibrateCamera(all_object_points, all_image_points, image_size, camera_matrix, dist_coeffs)
 
 
-output_folder_path = "charuco_board/"
-output_filepath = os.path.join(output_folder_path, "calib_params.p")
+# output 
+
+output_filepath = args["output"]
 
 calib_results = {
     "camera_matrix": camera_matrix,
@@ -91,13 +91,3 @@ print(calib_results)
 import pickle
 pickler = pickle.Pickler(open(output_filepath, "wb"))
 pickler.dump(calib_results)
-
-# with open(output_filepath,"wb") as f:
-#     f.write(json.dumps(calib_results))
-
-
-    # f.write
-
-    # Overlay body segmentation on depth image
-    # cv2.imshow('Transformed Color Depth Image With ChAruco Board Annotation',annotated_image)
-    

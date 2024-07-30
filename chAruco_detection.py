@@ -13,12 +13,12 @@ import utils
 ap = argparse.ArgumentParser()
 ap.add_argument("-cf", "--config", type=str, required=True,
     help="JSON file containing information about the needed board")
+ap.add_argument("-p", "--params", type=str, required=True,
+    help="Calibration result with ChAruco board")
 ap.add_argument("-cam", "--camera",
 	default=0,
 	help="Camera index")
-ap.add_argument("-p", "--params", type=str, 
-    default="charuco_board/calib_params.p",
-    help="Calibration result with ChAruco board")
+
 args = vars(ap.parse_args())
 
 
@@ -66,10 +66,10 @@ while True:
     print(annotated_image.shape)
 
     if ( (charuco_corners is not None) and (len(charuco_corners) > 0) ):
-        annotated_image = cv2.aruco.drawDetectedCornersCharuco(annotated_image, charuco_corners, charuco_ids, (255, 0, 0))
+        annotated_image = cv2.aruco.drawDetectedCornersCharuco(annotated_image, charuco_corners, charuco_ids, (0, 255, 0))
         (obj_points, img_points) = charuco_board.matchImagePoints(charuco_corners, charuco_ids)
 
-        if (camera_matrix.sum() != 0 and dist_coeffs.sum() != 0 and charuco_ids.shape[0] >= 4):
+        if (camera_matrix.sum() != 0 and dist_coeffs.sum() != 0 and charuco_ids.shape[0] >= 6):
             retval, rvec, tvec = cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coeffs)
             annotated_image = cv2.drawFrameAxes(annotated_image, camera_matrix, dist_coeffs, rvec, tvec, 100)
     # Overlay body segmentation on depth image

@@ -14,7 +14,7 @@ ap.add_argument("-x", "--x", type=int,
     default=8)
 ap.add_argument("-y", "--y", type=int,
     default=5)
-ap.add_argument("-o", "--output", type=str,
+ap.add_argument("-of", "--out_folder", type=str,
 	default="charuco_board/",
 	help="Output folder for output charuco boards.")
 args = vars(ap.parse_args())
@@ -48,13 +48,17 @@ board = cv2.aruco.CharucoBoard( (config["x"], config["y"]), config["square_lengt
 board_image = np.zeros( [board_size[0], board_size[1], 1], dtype=np.uint8)
 board_image = board.generateImage(board_size, board_image)
 
-output_folder_path = args["output"]
+output_folder_path = args["out_folder"]
 if (not os.path.exists(output_folder_path)):
 	os.mkdir(output_folder_path)
 
-output_name = args["dict"] + "_x=" + (str)(config["x"]) + "_y=" + (str)(config["y"])  + "_s=" + (str)(config["square_length"]) + "_m=" + (str)(config["marker_length"])
+output_name = args["dict"]
+output_name += "_x=" + (str)(config["x"])
+output_name += "_y=" + (str)(config["y"])  
+output_name += "_s=" + (str)(config["square_length"]) 
+output_name += "_m=" + (str)(config["marker_length"])
 
-output_file_path = os.path.join(args["output"], output_name + ".jpg")
+output_file_path = os.path.join(output_folder_path, output_name + ".jpg")
 	
 cv2.imwrite(
 		output_file_path,
