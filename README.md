@@ -44,7 +44,7 @@ coding (unlike AprilTags where no such generators are easily found).
 
 ### Generate ChAruco boards
 
-> python generate_charuco.py --dict DICT_4X4_50 -x 8 -y 5 --output charuco_board/
+> python generate_charuco.py --dict DICT_4X4_50 -x 8 -y 5 --out_folder charuco_board/
 
 ### Calibrate camera using ChAruco board
 
