@@ -55,15 +55,30 @@ charuco_params.distCoeffs = dist_coeffs
 charuco_detector = cv2.aruco.CharucoDetector(charuco_board,charuco_params  ,cv2.aruco.DetectorParameters())
 print("Charuco detector initialized!")
 
+aruco_params = cv2.aruco.DetectorParameters()
+aruco_detector = cv2.aruco.ArucoDetector(aruco_dict, aruco_params)
+print("Aruco detector initalized.")
+
 
 camera = cv2.VideoCapture(0)
 
 while True:
     ret, frame = camera.read()
     (charuco_corners, charuco_ids, marker_corners, marker_ids) = charuco_detector.detectBoard(frame)
+    (marker_corners_2, marker_ids_2, rejected_corners) = aruco_detector.detectMarkers(frame)
+
+    (marker_corners, marker_ids, _, _) = aruco_detector.refineDetectedMarkers(
+        image=frame,
+        board=charuco_board,
+        detectedCorners=marker_corners_2,
+        detectedIds=marker_ids_2,
+        rejectedCorners=rejected_corners,
+        cameraMatrix=camera_matrix,
+        distCoeffs=dist_coeffs
+    )
 	
     annotated_image = frame
-    print("Charuco corners: ", charuco_corners)
+    # print("Charuco corners: ", charuco_corners)
 
     if ( (charuco_corners is not None) and (len(charuco_corners) > 0) ):
         annotated_image = cv2.aruco.drawDetectedCornersCharuco(annotated_image, charuco_corners, charuco_ids, (0, 255, 0))
@@ -72,6 +87,13 @@ while True:
         if (camera_matrix.sum() != 0 and dist_coeffs.sum() != 0 and charuco_ids.shape[0] >= 6):
             retval, rvec, tvec = cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coeffs)
             annotated_image = cv2.drawFrameAxes(annotated_image, camera_matrix, dist_coeffs, rvec, tvec, 100)
+
+    if len(marker_corners) > 0: 
+        marker_ids = marker_ids.flatten()
+        # loop over the detected ArUCo corners
+        for (corners, id) in zip(marker_corners, marker_ids):
+            corners = corners.reshape((4, 2))
+            frame = utils.draw_bounding_box(frame, corners, id)
     # Overlay body segmentation on depth image
     cv2.imshow('Transformed Color Depth Image With ChAruco Board Annotation',annotated_image)
     

@@ -28,8 +28,9 @@ if utils.ARUCO_DICT.get(args["dict"], None) is None:
 	
 
 # load the ArUCo dictionary and grab the ArUCo parameters
-print("[INFO] generating '{}' charuco board...".format(args["dict"]))
-arucoDict = cv2.aruco.getPredefinedDictionary(utils.ARUCO_DICT[args["dict"]])
+aruco_dict_type = utils.get_dict_from_string(args["dict"])
+print("[INFO] generating '{}' charuco board...".format(aruco_dict_type))
+arucoDict = cv2.aruco.getPredefinedDictionary(aruco_dict_type)
 arucoParams = cv2.aruco.DetectorParameters()
 
 # define charuco board attributes
@@ -38,11 +39,12 @@ config = {
 	"x": args["x"], 
 	"y": args["y"],
 	"square_length": 100,
-	"marker_length": 60,          # for some reasons, I have to use this, if 0.2 then it cause error?
+	"marker_length": 80,          # for some reasons, I have to use this, if 0.2 then it cause error?
 }
 print(config)
 
-board_size = (1280, 720)
+# board_size = (1024, 720)
+board_size = (1024, 1024)			# to make it easier 
 
 board = cv2.aruco.CharucoBoard( (config["x"], config["y"]), config["square_length"], config["marker_length"], arucoDict)
 board_image = np.zeros( [board_size[0], board_size[1], 1], dtype=np.uint8)
@@ -58,7 +60,7 @@ output_name += "_y=" + (str)(config["y"])
 output_name += "_s=" + (str)(config["square_length"]) 
 output_name += "_m=" + (str)(config["marker_length"])
 
-output_file_path = os.path.join(output_folder_path, output_name + ".jpg")
+output_file_path = os.path.join(output_folder_path, output_name + ".png")
 	
 cv2.imwrite(
 		output_file_path,

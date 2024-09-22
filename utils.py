@@ -20,11 +20,27 @@ ARUCO_DICT = {
 	"DICT_7X7_250": cv2.aruco.DICT_7X7_250,
 	"DICT_7X7_1000": cv2.aruco.DICT_7X7_1000,
 	"DICT_ARUCO_ORIGINAL": cv2.aruco.DICT_ARUCO_ORIGINAL,
+
+	"4X4": cv2.aruco.DICT_4X4_1000,
+	"5X5": cv2.aruco.DICT_5X5_1000,
+	"6X6": cv2.aruco.DICT_6X6_1000,
+	"7X7": cv2.aruco.DICT_7X7_1000,
+
+	"DICT_4X4": cv2.aruco.DICT_4X4_1000,
+	"DICT_5X5": cv2.aruco.DICT_5X5_1000,
+	"DICT_6X6": cv2.aruco.DICT_6X6_1000,
+	"DICT_7x7": cv2.aruco.DICT_7X7_1000,
 #	"APRILTAG_16h5": cv2.aruco.DICT_APRILTAG_16h5,
 #	"APRILTAG_25h9": cv2.aruco.DICT_APRILTAG_25h9,
 #	"APRILTAG_36h10": cv2.aruco.DICT_APRILTAG_36h10,
 #	"APRILTAG_36h11": cv2.aruco.DICT_APRILTAG_36h11
 }
+
+
+def get_dict_from_string(str):
+	dict_str = str.upper()
+	return ARUCO_DICT.get(dict_str, None)
+
 
 def draw_bounding_box(frame, corners, id):
 	(topLeft, topRight, bottomRight, bottomLeft) = corners

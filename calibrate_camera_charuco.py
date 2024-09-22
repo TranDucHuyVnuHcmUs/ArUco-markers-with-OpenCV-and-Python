@@ -18,7 +18,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-cf", "--config", type=str, required=True,
     help="JSON file containing information about the needed board")
 ap.add_argument("-o", "--output", type=str,
-    default="charuco_board/camera_params.p",
+    default="charuco_board/camera_params.pckl",
     help="The path of the resulting camera parameter file.")
 ap.add_argument("-cam", "--camera", type=int,
 	default=0,
@@ -54,7 +54,7 @@ image_size = None           # for now
 
 frame_count = 0
 
-for i in tqdm(range(25)):
+for i in tqdm(range(5)):
     frame_count += 1
     ret, frame = camera.read()
     (charuco_corners, charuco_ids, marker_corners, marker_ids) = charuco_detector.detectBoard(frame)
@@ -71,6 +71,8 @@ for i in tqdm(range(25)):
         image_size = (frame.shape[0], frame.shape[1])
 
         cv2.imshow("Camera calibration using ChAruco board", annotated_image)
+
+        cv2.waitKey(0)
         
 camera_matrix = np.zeros((3,3))
 dist_coeffs = np.zeros(())
@@ -88,6 +90,7 @@ calib_results = {
     "tvecs": tvecs
 }
 print(calib_results)
+
 import pickle
 pickler = pickle.Pickler(open(output_filepath, "wb"))
 pickler.dump(calib_results)

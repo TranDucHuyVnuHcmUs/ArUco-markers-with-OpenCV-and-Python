@@ -22,14 +22,15 @@ args = vars(ap.parse_args())
 
 # verify that the supplied ArUCo tag exists and is supported by
 # OpenCV
-if utils.ARUCO_DICT.get(args["dict"], None) is None:
-	print("[INFO] ArUCo tag of '{}' is not supported".format(
-		args["dict"]))
+aruco_dict_type = utils.get_dict_from_string(args["dict"])
+
+if aruco_dict_type is None:
+	print("[INFO] ArUCo tag of '{}' is not supported".format(args["dict"]))
 	sys.exit(0)
 
 # load the ArUCo dictionary and grab the ArUCo parameters
 print("[INFO] detecting '{}' tags...".format(args["dict"]))
-arucoDict = cv2.aruco.getPredefinedDictionary(utils.ARUCO_DICT[args["dict"]])
+arucoDict = cv2.aruco.getPredefinedDictionary(aruco_dict_type)
 arucoParams = cv2.aruco.DetectorParameters()
 arucoDetector = cv2.aruco.ArucoDetector(arucoDict, arucoParams)
 

@@ -8,17 +8,22 @@ import sys
 import os
 import utils
 
+from tqdm import tqdm
+
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-of", "--out_folder", type=str,
 	default="aruco/",
 	help="path to the parent folder containing output file(s)")
-ap.add_argument("-i", "--id", type=int,
-	default=0,
-	help="ID of ArUCo tag to generate")
+ap.add_argument("-mi", "--max_id", type=int,
+	default=50,
+	help="Maximum ID of ArUCo tag to generate")
 ap.add_argument("-d", "--dict", type=str,
 	default="DICT_ARUCO_ORIGINAL",
 	help="type of ArUCo tag to generate")
+ap.add_argument("-s", "--size", type=int,
+	default=1024,
+	help="Side length of each marker")
 args = vars(ap.parse_args())
 
 
@@ -33,18 +38,16 @@ if aruco_dict_type is None:
 # load the ArUCo dictionary
 arucoDict = cv2.aruco.getPredefinedDictionary(aruco_dict_type)
 
-# allocate memory for the output ArUCo tag and then draw the ArUCo
-# tag on the output image
-print("[INFO] generating ArUCo tag type '{}' with ID '{}'".format(
-	args["dict"], args["id"]))
-tag = np.zeros((512, 512, 1), dtype="uint8")
-cv2.aruco.generateImageMarker(arucoDict, args["id"], 512, tag, 1)
+output_folder_path = os.path.join( args["out_folder"], args["dict"] )
+if not os.path.exists(output_folder_path):
+	os.mkdir(output_folder_path)
 
-# write the generated ArUCo tag to disk and then display it to our
-# screen
+def generate_marker_with_id_and_dict(dict, id: int, size: int, output_folder_path: str):
+	tag = np.zeros((512, 512, 1), dtype="uint8")
+	cv2.aruco.generateImageMarker(arucoDict, id, size, tag, 1)
+	cv2.imwrite(os.path.join(output_folder_path, args["dict"] + "_" + (str)(id) + ".png" ), tag)
 
-if not os.path.exists(args["out_folder"]):
-	os.mkdir(args["out_folder"])
-cv2.imwrite(os.path.join(args["out_folder"], args["dict"] + "_id" + (str)(args["id"]) + ".png" ), tag)
-cv2.imshow("ArUCo Tag", tag)
-cv2.waitKey(0)
+max_id = args["max_id"]
+size = args["size"]
+for id in tqdm(range(max_id + 1)):
+	generate_marker_with_id_and_dict(arucoDict, id, size, output_folder_path)
